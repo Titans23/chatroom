@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HOME</title>
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <style type="text/css">
+            #footer {
+                height: 40px;
+                line-height: 40px;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: center;
+                background: white;
+                color: green;
+                font-family: Arial;
+                font-size: 12px;
+                letter-spacing: 1px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<ul class="breadcrumb">
+				<li>
+					 <a href="{{ url_for("index") }}">聊天中心</a>
+				</li>
+				<li>
+					 <a href="{{ url_for("get_friends") }}">我的好友</a>
+				</li>
+				<li class="active">
+					欢迎你,{{ current_user.nick_name }}!
+				</li>
+			</ul>
+            <h2 style="text-align: -webkit-left">我的资料</h2>
+            <form action="{{ url_for('user_home') }}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label >当前图像：</label>
+                    <img src="image/{{ current_user.telephone }}" alt="用户图片" class="now_user_pic" width="100px" height="100px">
+                </div>
+                <div class="form-group">
+                    <label>上传图像：</label>
+                    <input id="file" type="file" name="file" class="input_file">
+                </div>
+                <div class="form-group">
+                    <label>用户昵称：</label>
+                    <input id="nick_name" type="text" name="nick_name" class="input_txt" value="{{ current_user.nick_name }}">
+                </div>
+                    <div class="form-group">
+                    <input type="submit" value="保 存" class="input_sub">
+                </div>
+            </form>
+            {% if current_user.room_id %}
+                <p>我的聊天室id:{{ current_user.room_id }}</p>
+            {% else %}
+                <p>我的聊天室id:还未创建私人聊天室</p>
+            {% endif %}
+		</div>
+	</div>
+</div>
+<div id="footer">CopyRight@copy2022-2022 Titans.All Rights Reserved </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chatroom</title>
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/socket.io/3.0.5/socket.io.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript">
+            $(document).ready(function() {
+
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                socket.emit('connect_event', {data: '加入了聊天室'});
+            })
+            socket.on('disconnect', function() {
+                socket.emit('disconnect_event', {data: '离开了聊天室'});
+            })
+            socket.on('server_response', function(msg) {
+                var tel = msg.tel;
+                var code=msg.code;
+                if(code==='join'){
+                    $('#online').append('<ul>' + $('<div/>').text(msg.nick_name).html());
+                }
+                else if(code==='leave'){
+                }
+                var bigImg = document.createElement('img');
+                bigImg.src = "http://127.0.0.1:5000/image/"+tel;
+                bigImg.width="25";
+                bigImg.height="25"
+                var content = document.getElementById('content');
+                content.appendChild(bigImg)
+                $('#content').append($('<div/>').text(msg.nick_name + msg.time+ ': ' + msg.data).html()+'<br>');
+            });
+
+            $('#emit').submit(function(event) {
+                    if($('#emit_data').val()===''){
+                        alert('不能发送空格!')
+                        return false;
+                    }
+                    socket.emit('client_event', {data: $('#emit_data').val()});
+                    document.getElementById('emit_data').value = "";
+                    return false;
+                });
+        });
+    </script>
+    <style type="text/css">
+            #footer {
+                height: 40px;
+                line-height: 40px;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: center;
+                background: white;
+                color: green;
+                font-family: Arial;
+                font-size: 12px;
+                letter-spacing: 1px;
+            }
+    </style>
+</head>
+<body>
+
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{{ url_for("index") }}">聊天室</a>
+        </div>
+            <div>
+                <ul class="nav navbar-nav">
+                    <li class="dropdown"><a href="#">创建我的聊天室</a></li>
+                    <li><a href="#">加入私人聊天室</a></li>
+                    <li>
+                        <form class="navbar-form navbar-left" role="search">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="房间号">
+                        </div>
+                        <button type="submit" class="btn btn-default">加入</button>
+                        </form>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            {{ current_user.nick_name }}
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for("user_home") }}">个人中心</a></li>
+                            <li><a href="{{ url_for("logout") }}">退出登录</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+
+            <div class="navbar-header">
+                <img src="image/{{ current_user.telephone }}" alt="用户图片"  width="60px" height="60px">
+            </div>
+        </div>
+    </nav>
+    </div>
+	</div>
+</div>
+    <div class="container">
+	<div class="row clearfix">
+		<div class="col-md-6 column">
+            <h1>公共大厅</h1>
+            <div id="content" style="width: 300px;height: 500px;">
+
+            </div>
+            <form action="#" method="post" id="emit">
+                <input type="text" name="emit_data" id="emit_data" placeholder="Message" style="margin: 5px">
+                <input type="submit" value="发送" id="click">
+            </form>
+		</div>
+            <div class="col-md-6 column">
+                <h3 style="color: green">Online</h3>
+                <ul id="online">
+                    {% for user in users %}
+                        <li style="color: green;">
+                            {{ user.nick_name }}
+                            {% if judge(current_user.telephone,user.telephone) %}
+{#                                <a href="{{ url_for("add_friend",tel=user.telephone) }}" methods="post">#}
+{#                                    添加好友#}
+{#                                </a>#}
+                                <form action="{{ url_for("add_friend",tel=user.telephone) }}" method="post">
+                                    <input type="submit" value="添加好友">
+                                    <input type="hidden" name="telephone" value="{{ current_user.telephone }}">
+                                </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+</div>
+<div id="footer">CopyRight@copy2022-2022 Titans.All Rights Reserved </div>
+{#{{ url_for("judge",tel1=current.telephone,tel2=user.telephone) }}#}
+</body>
+</html>
